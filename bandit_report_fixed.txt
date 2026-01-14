@@ -1,0 +1,101 @@
+Run started:2026-01-02 18:59:45.976868+00:00
+
+Test results:
+>> Issue: [B413:blacklist] The pyCrypto library and its module AES are no longer actively maintained and have been deprecated. Consider using pyca/cryptography library.
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b413-import-pycrypto
+   Location: .\main.py:9:0
+8	import html
+9	from Crypto.Cipher import AES
+10	from Crypto import Random
+
+--------------------------------------------------
+>> Issue: [B413:blacklist] The pyCrypto library and its module Random are no longer actively maintained and have been deprecated. Consider using pyca/cryptography library.
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b413-import-pycrypto
+   Location: .\main.py:10:0
+9	from Crypto.Cipher import AES
+10	from Crypto import Random
+11	import argparse
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: .\main.py:166:0
+165	# 2. DNS lookup
+166	import subprocess
+167	import shlex
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/plugins/b607_start_process_with_partial_path.html
+   Location: .\main.py:183:25
+182	                # Use subprocess with argument list (NOT shell=True)
+183	                result = subprocess.run(
+184	                    ['nslookup', address],  # Arguments as list
+185	                    capture_output=True,
+186	                    text=True,
+187	                    timeout=5
+188	                ).stdout
+189	            else:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: .\main.py:183:25
+182	                # Use subprocess with argument list (NOT shell=True)
+183	                result = subprocess.run(
+184	                    ['nslookup', address],  # Arguments as list
+185	                    capture_output=True,
+186	                    text=True,
+187	                    timeout=5
+188	                ).stdout
+189	            else:
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\main.py:333:43
+332	            try:
+333	                cursor.execute(query_build("SELECT * from public_stuff WHERE {} = ?".format(param)), (category,))
+334	                results = cursor.fetchall()
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.2/plugins/b608_hardcoded_sql_expressions.html
+   Location: .\main.py:442:43
+441	                values = ', '.join([(lambda x: str(x) if isinstance(x, int) else "'{}'".format(x.replace("'", "\\'")))(a) for a in data])
+442	                cursor.execute(query_build('INSERT INTO {} ({}) VALUES ({})'.format(table['table_name'], columns, values)))
+443	    except Exception as e:
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 359
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 3
+		Medium: 2
+		High: 2
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 2
+		Medium: 0
+		High: 5
+Files skipped (0):

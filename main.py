@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
-import pickle
+#import pickle
 from base64 import b64decode,b64encode
 from binascii import hexlify, unhexlify
-from os import popen
+#from os import popen
 from lxml import etree
 import html
 from Crypto.Cipher import AES
@@ -98,8 +98,7 @@ def decrypt(value, key):
     return unpad(decrypted)
 
 
-def rp(command):
-    return popen(command).read()
+
 
 
 app = Flask(__name__)
@@ -125,6 +124,10 @@ def index():
 
 
 # 1. Cookie setter/getter
+import json
+
+import json
+
 @app.route('/cookie', methods = ['POST', 'GET'])
 def cookie():
     cookieValue = None
@@ -134,8 +137,11 @@ def cookie():
         cookieValue = request.form['value']
         value = cookieValue
     elif 'value' in request.cookies:
-        cookieValue = pickle.loads(b64decode(request.cookies['value'])) 
-    
+        # SECURE FIX: Use JSON instead of pickle
+        try:
+            cookieValue = json.loads(request.cookies['value'])
+        except:
+            cookieValue = "Invalid cookie data"
         
     form = """
     <html>
@@ -151,21 +157,45 @@ def cookie():
     resp = make_response(form)
     
     if value:
-        resp.set_cookie('value', b64encode(pickle.dumps(value)))
+        # Store as JSON string instead of pickle
+        resp.set_cookie('value', json.dumps(value))
 
     return resp
 
-
-
 # 2. DNS lookup
+import subprocess
+import shlex
+
 @app.route('/lookup', methods = ['POST', 'GET'])
 def lookup():
     address = None
+    result = ""
+    
     if request.method == 'POST':
         address = request.form['address']
+        
+        # SECURE FIX: Use subprocess with list of arguments
+        # This prevents command injection
+        try:
+            # Validate input: only allow valid domain/IP format
+            if address and all(c.isalnum() or c in '.-_' for c in address):
+                # Use subprocess with argument list (NOT shell=True)
+                result = subprocess.run(
+                    ['nslookup', address],  # Arguments as list
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                ).stdout
+            else:
+                result = "Invalid input. Only alphanumeric characters, dots, hyphens, and underscores allowed."
+        except subprocess.TimeoutExpired:
+            result = "Lookup timed out"
+        except Exception as e:
+            result = f"Error: {str(e)}"
+    
     return """
     <html>
-       <body>""" + "Result:\n<br>\n" + (rp("nslookup " + address).replace('\n', '\n<br>')  if address else "") + """
+       <body>Result:<br>""" + result.replace('\n', '<br>') + """
           <form action = "/lookup" method = "POST">
              <p><h3>Enter address to lookup</h3></p>
              <p><input type = 'text' name = 'address'/></p>
@@ -174,17 +204,19 @@ def lookup():
        </body>
     </html>
     """
-
     
 # 3. Python expression evaluation
 @app.route('/evaluate', methods = ['POST', 'GET'])
 def evaluate():
-    expression = None
+    result = ""
     if request.method == 'POST':
         expression = request.form['expression']
+        # SECURE: Disabled eval() - too dangerous for production
+        result = "Expression evaluation has been disabled for security reasons."
+    
     return """
     <html>
-       <body>""" + "Result: " + (str(eval(expression)).replace('\n', '\n<br>')  if expression else "") + """
+       <body>Result: """ + result + """
           <form action = "/evaluate" method = "POST">
              <p><h3>Enter expression to evaluate</h3></p>
              <p><input type = 'text' name = 'expression'/></p>
@@ -193,7 +225,6 @@ def evaluate():
        </body>
     </html>
     """
-
 
 
 # 4. XML Parser
@@ -259,7 +290,12 @@ def config():
 def sayhi():
    name = ''
    if request.method == 'POST':
-      name = '<br>Hello %s!<br><br>' %(request.form['name'])
+      # SECURE FIX: Pass user input as variable, not in template string
+      name = request.form['name']
+      
+      # Escape HTML to prevent XSS as well
+      from markupsafe import escape
+      name = escape(name)
 
    template = """
    <html>
@@ -269,12 +305,14 @@ def sayhi():
             <p><input type = 'text' name = 'name'/></p>
             <p><input type = 'submit' value = 'Submit'/></p>
          </form>
-      %s
+         {% if name %}
+         <br>Hello {{ name }}!<br><br>
+         {% endif %}
       </body>
    </html>
-   """ %(name)
-   return render_template_string(template)
-
+   """
+   # Pass name as a variable to the template, not embedded in string
+   return render_template_string(template, name=name)
 
 # 7. List products and services
 @app.route('/listservices', methods = ['GET'])
@@ -285,14 +323,25 @@ def listservices():
     columns = [b['name'] for b in [a for a in DATABASE_TABLES if a['table_name'] == 'public_stuff'][0]['columns']]
     column_html = '\n'.join(['<th>{}</th>'.format(a) for a in columns])
     where = ''
-    if category:
-        where = " WHERE {} = '{}'".format(param, category)
     
-    try:
-        cursor.execute(query_build('SELECT * from public_stuff{}'.format(where)))
-        results = cursor.fetchall()
-    except Exception as e:
-        return str(e)
+    # SECURE FIX: Validate and sanitize category input
+    if category:
+        # Only allow alphanumeric, spaces, and hyphens
+        if all(c.isalnum() or c in ' -_' for c in category):
+            # Use parameterized query
+            try:
+                cursor.execute(query_build("SELECT * from public_stuff WHERE {} = ?".format(param)), (category,))
+                results = cursor.fetchall()
+            except Exception as e:
+                return str(e)
+        else:
+            return "Invalid category parameter"
+    else:
+        try:
+            cursor.execute(query_build('SELECT * from public_stuff'))
+            results = cursor.fetchall()
+        except Exception as e:
+            return str(e)
     
     linker = lambda x,y : '<a href="/listservices?{}={}">{}</a>'.format(param, y, y) if x==columns.index(param) else str(y)
     results_html = '<tr>\n<td>' + '</tr>\n<tr>\n<td>'.join(['</td>\n<td>'.join([linker(c, b) for b, c in zip(a, range(0,len(a)))]) for a in results]) + '\n</tr>'
@@ -310,7 +359,6 @@ def listservices():
         </body>
     </html>
     """
-    
 
 if __name__ == "__main__":
 

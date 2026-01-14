@@ -1,0 +1,184 @@
+{
+  "errors": [],
+  "generated_at": "2026-01-02T18:59:49Z",
+  "metrics": {
+    ".\\main.py": {
+      "CONFIDENCE.HIGH": 5,
+      "CONFIDENCE.LOW": 2,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 2,
+      "SEVERITY.LOW": 3,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 359,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "_totals": {
+      "CONFIDENCE.HIGH": 5,
+      "CONFIDENCE.LOW": 2,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 2,
+      "SEVERITY.LOW": 3,
+      "SEVERITY.MEDIUM": 2,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 359,
+      "nosec": 0,
+      "skipped_tests": 0
+    }
+  },
+  "results": [
+    {
+      "code": "8 import html\n9 from Crypto.Cipher import AES\n10 from Crypto import Random\n",
+      "col_offset": 0,
+      "end_col_offset": 29,
+      "filename": ".\\main.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 327,
+        "link": "https://cwe.mitre.org/data/definitions/327.html"
+      },
+      "issue_severity": "HIGH",
+      "issue_text": "The pyCrypto library and its module AES are no longer actively maintained and have been deprecated. Consider using pyca/cryptography library.",
+      "line_number": 9,
+      "line_range": [
+        9
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b413-import-pycrypto",
+      "test_id": "B413",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "9 from Crypto.Cipher import AES\n10 from Crypto import Random\n11 import argparse\n",
+      "col_offset": 0,
+      "end_col_offset": 25,
+      "filename": ".\\main.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 327,
+        "link": "https://cwe.mitre.org/data/definitions/327.html"
+      },
+      "issue_severity": "HIGH",
+      "issue_text": "The pyCrypto library and its module Random are no longer actively maintained and have been deprecated. Consider using pyca/cryptography library.",
+      "line_number": 10,
+      "line_range": [
+        10
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b413-import-pycrypto",
+      "test_id": "B413",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "165 # 2. DNS lookup\n166 import subprocess\n167 import shlex\n",
+      "col_offset": 0,
+      "end_col_offset": 17,
+      "filename": ".\\main.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Consider possible security implications associated with the subprocess module.",
+      "line_number": 166,
+      "line_range": [
+        166
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/blacklists/blacklist_imports.html#b404-import-subprocess",
+      "test_id": "B404",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "182                 # Use subprocess with argument list (NOT shell=True)\n183                 result = subprocess.run(\n184                     ['nslookup', address],  # Arguments as list\n185                     capture_output=True,\n186                     text=True,\n187                     timeout=5\n188                 ).stdout\n189             else:\n",
+      "col_offset": 25,
+      "end_col_offset": 17,
+      "filename": ".\\main.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Starting a process with a partial executable path",
+      "line_number": 183,
+      "line_range": [
+        183,
+        184,
+        185,
+        186,
+        187,
+        188
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/plugins/b607_start_process_with_partial_path.html",
+      "test_id": "B607",
+      "test_name": "start_process_with_partial_path"
+    },
+    {
+      "code": "182                 # Use subprocess with argument list (NOT shell=True)\n183                 result = subprocess.run(\n184                     ['nslookup', address],  # Arguments as list\n185                     capture_output=True,\n186                     text=True,\n187                     timeout=5\n188                 ).stdout\n189             else:\n",
+      "col_offset": 25,
+      "end_col_offset": 17,
+      "filename": ".\\main.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "subprocess call - check for execution of untrusted input.",
+      "line_number": 183,
+      "line_range": [
+        183,
+        184,
+        185,
+        186,
+        187,
+        188
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/plugins/b603_subprocess_without_shell_equals_true.html",
+      "test_id": "B603",
+      "test_name": "subprocess_without_shell_equals_true"
+    },
+    {
+      "code": "332             try:\n333                 cursor.execute(query_build(\"SELECT * from public_stuff WHERE {} = ?\".format(param)), (category,))\n334                 results = cursor.fetchall()\n",
+      "col_offset": 43,
+      "end_col_offset": 84,
+      "filename": ".\\main.py",
+      "issue_confidence": "LOW",
+      "issue_cwe": {
+        "id": 89,
+        "link": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible SQL injection vector through string-based query construction.",
+      "line_number": 333,
+      "line_range": [
+        333
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/plugins/b608_hardcoded_sql_expressions.html",
+      "test_id": "B608",
+      "test_name": "hardcoded_sql_expressions"
+    },
+    {
+      "code": "441                 values = ', '.join([(lambda x: str(x) if isinstance(x, int) else \"'{}'\".format(x.replace(\"'\", \"\\\\'\")))(a) for a in data])\n442                 cursor.execute(query_build('INSERT INTO {} ({}) VALUES ({})'.format(table['table_name'], columns, values)))\n443     except Exception as e:\n",
+      "col_offset": 43,
+      "end_col_offset": 76,
+      "filename": ".\\main.py",
+      "issue_confidence": "LOW",
+      "issue_cwe": {
+        "id": 89,
+        "link": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Possible SQL injection vector through string-based query construction.",
+      "line_number": 442,
+      "line_range": [
+        442
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.9.2/plugins/b608_hardcoded_sql_expressions.html",
+      "test_id": "B608",
+      "test_name": "hardcoded_sql_expressions"
+    }
+  ]
+}
